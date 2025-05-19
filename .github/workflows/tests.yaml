@@ -1,0 +1,44 @@
+name: 🔨 Tests
+
+on:
+  push:
+    branches: ["master", "experimental"]
+    paths:
+      - '**.go'
+      - '**.mod'
+  pull_request:
+    paths:
+      - '**.go'
+      - '**.mod'
+  workflow_dispatch:
+
+# defaults:
+#   run:
+#     shell: sudo bash -e {0}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: "Lint"
+    if: "${{ !endsWith(github.actor, '[bot]') }}"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: projectdiscovery/actions/setup/go@v1
+      - uses: projectdiscovery/actions/golangci-lint/v2@v1
+
+  # # TODO(dwisiswant0): Implement this job
+  # tests:
+  #   name: "Tests"
+  #   needs: ["lint"]
+  #   runs-on: runs-on=${{ github.run_id }}/runner=8cpu-linux-x64
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: projectdiscovery/actions/setup/go@v1
+  #     - run: go mod verify
+  #     - run: make test-build
+  #     - run: make test
+  #     - run: make bench
