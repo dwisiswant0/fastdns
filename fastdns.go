@@ -251,7 +251,7 @@ func New(dstIP net.IP, opts ...FastDNSOption) (*FastDNS, error) {
 
 	program, err := xdp.NewProgram(f.queueID + 1)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create XDP program: %v", err)
+		return nil, fmt.Errorf("failed to create XDP program: %v: %v", ErrRootRequired, err)
 	}
 	f.program = program
 

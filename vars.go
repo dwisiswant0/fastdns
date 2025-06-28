@@ -31,4 +31,5 @@ var (
 	ErrNoUDPLayer               = errors.New("could not get UDP layer")
 	ErrPacketTooSmall           = errors.New("packet too small")
 	ErrPoll                     = errors.New("poll error")
+	ErrRootRequired             = errors.New("CAP_NET_ADMIN capability or root privileges required")
 )
