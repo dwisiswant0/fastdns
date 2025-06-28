@@ -10,6 +10,9 @@
 go get github.com/dwisiswant0/fastdns@latest
 ```
 
+> [!NOTE]
+> This library requires **`CAP_NET_ADMIN`** capability or **root** privileges to create & manage XDP sockets and attach programs to network interfaces.
+
 ## Example
 
 ```go
