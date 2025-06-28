@@ -548,7 +548,7 @@ func (f *FastDNS) send(msg *dns.Msg) *Response {
 	now := time.Now()
 	backoff := 100
 
-	for timeout := now.Add(f.timeout); now.Before(timeout); {
+	for timeout := now.Add(f.timeout); time.Now().Before(timeout); {
 		txDescs, err = f.getTXDescs(packetBytes)
 		if err != nil {
 			resp.Error = err
