@@ -9,12 +9,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alitto/pond/v2"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/maypok86/otter"
 	"github.com/miekg/dns"
 	"github.com/slavc/xdp"
-	"github.com/sourcegraph/conc"
 	"github.com/vishvananda/netlink"
 )
 
@@ -403,34 +403,21 @@ func (f *FastDNS) Queries(msgs ...*dns.Msg) ([]*Response, error) {
 		return nil, ErrNoQueries
 	}
 
-	maxBatch := min(f.maxBatchSize, len(msgs))
-	responses := make([]*Response, len(msgs))
-	wg := conc.NewWaitGroup()
+	pool := pond.NewResultPool[*Response](f.maxBatchSize)
+	group := pool.NewGroup()
 
-	for i := range msgs {
-		i := i
-		msg := msgs[i]
-		wg.Go(func() {
-			var resp *Response
-			for retry := range f.maxRetries {
-				resp = f.Query(msg)
-				if resp.IsSuccess() {
-					break
-				}
-
-				if retry < f.maxRetries-1 {
-					continue
-				}
-			}
-			responses[i] = resp
+	for _, msg := range msgs {
+		group.Submit(func() *Response {
+			return f.Query(msg)
 		})
-
-		if (i+1)%maxBatch == 0 || i == len(msgs)-1 {
-			wg.Wait()
-		}
 	}
 
-	return responses, nil
+	results, err := group.Wait()
+	if err != nil {
+		return nil, err
+	}
+
+	return results, nil
 }
 
 // QueryFromFile reads entries from a file and performs DNS queries using a
@@ -468,7 +455,7 @@ func (f *FastDNS) QueryFromFile(file *os.File, mapper func(s string) *dns.Msg) (
 
 func (f *FastDNS) pollAndReceive(now time.Time, resp *Response) {
 	backoff := 100
-	for timeout := now.Add(f.timeout); now.Before(timeout); {
+	for timeout := now.Add(f.timeout); time.Now().Before(timeout); {
 		numRx, _, err := f.socket.Poll(1)
 		if err != nil {
 			resp.Error = fmt.Errorf("%w: %v", ErrPoll, err)
