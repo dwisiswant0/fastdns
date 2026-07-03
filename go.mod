@@ -1,6 +1,6 @@
 module github.com/dwisiswant0/fastdns
 
-go 1.24.3
+go 1.25.0
 
 require (
 	github.com/alitto/pond/v2 v2.4.0
@@ -18,8 +18,8 @@ require (
 	github.com/gammazero/deque v1.0.0 // indirect
 	github.com/vishvananda/netns v0.0.5 // indirect
 	golang.org/x/mod v0.25.0 // indirect
-	golang.org/x/net v0.41.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/sync v0.15.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/tools v0.34.0 // indirect
 )
